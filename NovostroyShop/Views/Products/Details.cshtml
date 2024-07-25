@@ -1,0 +1,233 @@
+﻿@model NovostroyShop.Models.Product;
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@using Microsoft.AspNetCore.Builder
+@using Microsoft.AspNetCore.Localization
+@using Microsoft.Extensions.Options
+@using TranslatorHelper;
+@using NovostroyShop.Helpers;
+@using Microsoft.AspNetCore.Identity
+
+@{
+    ViewData["Title"] = Model.Name;
+    var cult = Context.Features.Get<IRequestCultureFeature>().RequestCulture.UICulture.Name;
+
+}
+
+@{
+    string GetImageLink(string url)
+    {
+        return string.IsNullOrEmpty(url) ? "https://img.freepik.com/free-photo/light-gray-abstract-background_53876-101909.jpg" : url;
+    }
+}
+
+
+<div style="1300px" class="container mt-5">
+    <div class="product-details row" style="display: flex;flex-direction: row; justify-content: center;">
+        <div class="image-container col-6" style="display: flex;justify-content: space-between;">
+            <div class="main-image col-9">
+                <img src="@GetImageLink(Model.ImageSrc)" class="img-fluid clickable-image" alt="@Model.Name">
+            </div>
+            <div class="col-3">
+                <div class="other-images" >
+                    <img class="clickable-image" src="@GetImageLink(Model.ImageSrc2)" alt="@Model.Name">
+                  <img class="mrg-10 clickable-image" src="@GetImageLink(Model.ImageSrc3)" alt="@Model.Name">
+                  <img class="mrg-10 clickable-image" src="@GetImageLink(Model.ImageSrc4)" alt="@Model.Name">
+                    <img class="mrg-10 clickable-image" src="@GetImageLink(Model.ImageSrc5)" alt="@Model.Name">
+                </div>
+            </div>
+        </div>
+        <div class="product-info col-6" style="text-align: center;">
+            <h2>@Model.Name</h2>
+            <p class="description">@Model.Description</p>
+            <p class="price">@Translate.GetWordFromArray("price",cult): @Model.Price$</p>
+            <p class="brand">@Translate.GetWordFromArray("brand",cult): @Model.Brand.Name</p>
+            <p id="rating-info">@Translate.GetWordFromArray("ratings",cult)</p>
+            <div style="margin-bottom: 14px;" class="rating">
+                <i data-value="1" class="bi bi-star" style="color: #e6ac00; font-size: 18px;"></i>
+                <i data-value="2" class="bi bi-star" style="color: #e6ac00; font-size: 18px;"></i>
+                <i data-value="3" class="bi bi-star" style="color: #e6ac00; font-size: 18px;"></i>
+                <i data-value="4" class="bi bi-star" style="color: #e6ac00; font-size: 18px;"></i>
+                <i data-value="5" class="bi bi-star" style="color: #e6ac00; font-size: 18px;"></i>
+            </div>
+            <button onclick="addToCart(@Model.Id)" type="submit" class="btn btn-outline-dark">@Translate.GetWordFromArray("addtocart",cult)</button>
+            <a href="@Url.Action("Products", "Products")" class="btn btn-secondary">@Translate.GetWordFromArray("returntoproductlist",cult)</a>
+        </div>
+        <div class="OrderReview">
+            <div class="sub-review">
+                <div class="current-avatar" style="background-image: url(@DefaultInfo.AvatarimageUrl)"></div>
+                <input id="reviewInput" size="15"
+                       type="text"
+                       placeholder="@Translate.GetWordFromArray("Enteryourreview",cult)" />
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <button onclick="AddReview()"><i class="bi bi-send-fill"></i></button>
+                }
+                else
+                {
+                    <span style="width: 233px;text-align: center;color: gray;">@Translate.GetWordFromArray("Onlyregistereduserscanleaveareview",cult)</span>
+                }
+
+            </div>
+            <div class="view-reviews">
+                @foreach (var item in Model.ReviewDetails ?? new List<ReviewDetail>())
+                {
+                    <div class="review">
+                        <div class="avatar" style="background-image: url(@DefaultInfo.AvatarimageUrl)"></div>
+                        <div class="info">
+                            <span id="name">@item.Name</span>
+                            <span id="date">@item.DateCreate.ToShortDateString()</span>
+                        </div>
+                        <p id="review">@item.ReviewText</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="imageModal" class="modal">
+    <span class="close" onclick="Close()">&times;</span>
+    <img class="modal-content" id="modalImage">
+    <div id="caption"></div>
+</div>
+
+<style>
+    .rating i {
+        cursor: pointer !important;
+        transition: color 0.2s !important
+    }
+
+        .rating i.hovered,
+        .rating i.selected {
+            color: #000 !important;
+        }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const stars = document.querySelectorAll('.rating i');
+        stars.forEach(star => {
+            star.addEventListener('mouseover', handleMouseOver);
+            star.addEventListener('mouseout', handleMouseOut);
+            star.addEventListener('click', handleClick);
+        });
+
+        function handleMouseOver(event) {
+            const value = parseInt(event.target.getAttribute('data-value'));
+            stars.forEach(star => {
+                if (parseInt(star.getAttribute('data-value')) <= value) {
+                    star.classList.add('hovered');
+                }
+            });
+        }
+
+        function handleMouseOut() {
+            stars.forEach(star => {
+                star.classList.remove('hovered');
+            });
+        }
+
+        function handleClick(event) {
+            const value = parseInt(event.target.getAttribute('data-value'));
+            stars.forEach(star => {
+                star.classList.remove('selected');
+                if (parseInt(star.getAttribute('data-value')) <= value) {
+                    star.classList.add('selected');
+                }
+            });
+
+            // Call the function to post rating
+            PostRating(@Model.Id, value);
+        }
+    });
+
+    function PostRating(productId, rating) {
+        fetch('/Products/SetRating', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                productId: productId,
+                rating: rating
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data) {
+                    document.getElementById('rating-score').innerText = data.score;
+                    document.getElementById('rating-count').innerText = data.count;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+
+    function addToCart(productId) {
+        fetch('/Cart/AddToCart?productId=' + productId, {
+            method: 'POST'
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Произошла ошибка при добавлении товара в корзину.');
+                }
+                // Обработка успешного добавления товара в корзину
+                console.log('Товар успешно добавлен в корзину.');
+            })
+            .catch(error => {
+                // Обработка ошибки
+                console.error('Произошла ошибка при добавлении товара в корзину:', error);
+            });
+    }
+
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var modal = document.getElementById("imageModal");
+        var modalImg = document.getElementById("modalImage");
+        var captionText = document.getElementById("caption");
+
+        var images = document.querySelectorAll('.clickable-image');
+        images.forEach(function (image) {
+            image.addEventListener('click', function () {
+                modal.style.display = "block";
+                modalImg.src = this.src;
+                captionText.innerHTML = this.alt;
+            });
+        });
+
+    });
+
+
+    function Close() {
+        var modal = document.getElementById("imageModal");
+        modal.style.display = "none";
+    };
+
+    function AddReview() {
+        const reviewInput = document.getElementById("reviewInput");
+        const reviewText = reviewInput.value;
+
+        fetch('/Products/AddReview', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ reviewText: reviewText, productId: @Model.Id })
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Произошла ошибка при добавлении отзыва.');
+                }
+
+                location.reload();
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+            });
+    }
+
+
+</script>

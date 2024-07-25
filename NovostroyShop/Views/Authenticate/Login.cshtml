@@ -1,0 +1,45 @@
+﻿@model NovostroyShop.Authentication.LoginModel;
+@using Microsoft.AspNetCore.Localization;
+@using TranslatorHelper;
+
+
+@{
+    var cult = Context.Features.Get<IRequestCultureFeature>().RequestCulture.UICulture.Name;
+}
+
+<div style="width: 452px;
+    height: 525px;
+    padding: 9%;
+    margin-left: 98%;
+    margin-top: 5%;
+    background-color: #ffbd02;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 6px 20px rgba(0, 0, 0, 0.1);
+    border-radius: 4%;">
+    <div >
+        <form asp-controller="Authenticate" asp-action="Login" asp-antiforgery="true">
+            <div>
+                <h1 class="mb-5 mt-1 text-center">@Translate.GetWordFromArray("authorization", cult)</h1>
+                <div class="form-group mb-3">
+                    <label class="form-label">@Translate.GetWordFromArray("userName", cult)</label>
+                    <input type="text" asp-for="Username" class="form-control" />
+                    <span asp-validation-for="Username" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-10">
+                    <label class="form-label">@Translate.GetWordFromArray("password", cult)</label>
+                    <input asp-for="Password" type="password" class="form-control" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+                <div class="validation" asp-validation-summary="ModelOnly"></div>
+                <button type="submit" style="background-color: black;margin-top: 92px;color: #ffbd02;" class="btn w-100">
+                    @Translate.GetWordFromArray("submit", cult)
+                </button>
+                <a asp-controller="Authenticate" asp-action="Register">@Translate.GetWordFromArray("noaccountlog", cult)</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section scripts {
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+}

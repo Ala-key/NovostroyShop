@@ -1,0 +1,20 @@
+﻿@model NovostroyShop.Models.Order;
+
+@{
+    ViewData["Title"] = "Заказ завершен";
+}
+
+<div style="width: 1322px;">
+    <div class="jumbotron text-center mt-5">
+        <h1 class="display-4">Спасибо!</h1>
+        <p class="lead">Ваш заказ успешно завершен.</p>
+        <hr class="my-4">
+        <p>Номер заказа: <strong>@Model.id</strong></p>
+        <p>Дата заказа: <strong>@Model.OrderDate.ToString("dd MMMM yyyy")</strong></p>
+        <p class="lead">
+            <a class="btn btn-primary btn-lg" href="/" role="button">Продолжить покупки</a>
+        </p>
+    </div>
+
+</div>
+

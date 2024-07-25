@@ -1,0 +1,57 @@
+﻿@using Microsoft.AspNetCore.Localization;
+@using TranslatorHelper;
+
+@{
+    var cult = Context.Features.Get<IRequestCultureFeature>().RequestCulture.UICulture.Name;
+}
+
+<div class="custom-container">
+    <h1 class="custom-heading">@Translate.GetWordFromArray("welcome", cult)</h1>
+    <div class="custom-content">
+        @Translate.GetWordFromArray("qualityText", cult)
+        <br>
+        @Translate.GetWordFromArray("reliabilityText", cult)
+        <br>
+        @Translate.GetWordFromArray("professionalismText", cult)
+
+        <h3>@Translate.GetWordFromArray("ourAssortment", cult)</h3>
+        <ul>
+            <li><b>@Translate.GetWordFromArray("buildingMaterials", cult):</b> цемент, кирпич, песок, щебень и другие.</li>
+            <li><b>@Translate.GetWordFromArray("decorMaterials", cult):</b> краски, обои, плитка, ламинат и многое другое.</li>
+            <li><b>@Translate.GetWordFromArray("toolsEquipment", cult):</b> от ручных инструментов до сложной строительной техники.</li>
+            <li><b>@Translate.GetWordFromArray("plumbingElectricity", cult):</b> трубы, смесители, кабели, розетки и т.д.</li>
+            <li><b>@Translate.GetWordFromArray("gardenProducts", cult):</b> оборудование для полива, инструменты для сада, декор для ландшафта.</li>
+        </ul>
+
+        <h3>@Translate.GetWordFromArray("ourServices", cult)</h3>
+        <ul>
+            <li><b>@Translate.GetWordFromArray("delivery", cult):</b> Быстрая и надежная доставка по городу и области.</li>
+            <li><b>@Translate.GetWordFromArray("consulting", cult):</b> Профессиональная помощь в подборе материалов и инструментов.</li>
+            <li><b>@Translate.GetWordFromArray("designing", cult):</b> Услуги по созданию и разработке строительных проектов.</li>
+            <li><b>@Translate.GetWordFromArray("installation", cult):</b> Профессиональные услуги по установке и монтажу различных строительных конструкций и систем.</li>
+        </ul>
+
+        <h3>@Translate.GetWordFromArray("whyUs", cult)</h3>
+        <ul>
+            <li><b>@Translate.GetWordFromArray("wideAssortment", cult):</b> Более 10,000 наименований товаров на любой вкус и бюджет.</li>
+            <li><b>@Translate.GetWordFromArray("flexibleConditions", cult):</b> Удобные варианты оплаты и специальные предложения для постоянных клиентов.</li>
+            <li><b>@Translate.GetWordFromArray("reliableSuppliers", cult):</b> Только проверенные и сертифицированные производители.</li>
+            <li><b>@Translate.GetWordFromArray("loyalty", cult):</b> Мы ценим каждого клиента и всегда готовы предложить выгодные условия сотрудничества.</li>
+        </ul>
+
+        <h2>@Translate.GetWordFromArray("contacts", cult)</h2>
+        <p>
+            <b>@Translate.GetWordFromArray("address", cult):</b> ул. Строителей, д. 10, г. Новгород
+            <br>
+            <b>@Translate.GetWordFromArray("phone", cult):</b> +7 (800) 123-45-67
+            <br>
+            <b>@Translate.GetWordFromArray("email", cult):</b> info@novostroy.ru
+            <br>
+            <b>@Translate.GetWordFromArray("workingHours", cult):</b> Пн-Пт: 9:00 - 18:00, Сб-Вс: 10:00 - 16:00
+        </p>
+
+        <p>
+            Спасибо, что выбрали "Новострой"! Мы уверены, что с нашей помощью ваш проект станет реальностью.
+        </p>
+    </div>
+</div>

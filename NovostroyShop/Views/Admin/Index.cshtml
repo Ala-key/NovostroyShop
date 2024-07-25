@@ -1,0 +1,264 @@
+﻿@using Microsoft.AspNetCore.Localization;
+@using TranslatorHelper;
+@{
+    ViewData["Title"] = "Админ панель";
+}
+
+@{
+    var cult = Context.Features.Get<IRequestCultureFeature>().RequestCulture.UICulture.Name;
+
+}
+
+
+<div>
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link active" href="#" id="tab-products" onclick="loadProducts()">@Translate.GetWordFromArray("products",cult)</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#" id="tab-categories" onclick="loadCategories()">@Translate.GetWordFromArray("categories",cult)</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#" id="tab-brands" onclick="loadBrands()">@Translate.GetWordFromArray("brands",cult)</a>
+        </li>
+    </ul>
+</div>
+
+<div style="display: none" class="blockBrands">
+    <h3>@Translate.GetWordFromArray("brands",cult)</h3>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>@Translate.GetWordFromArray("names",cult)</th>
+                <th>@Translate.GetWordFromArray("actions",cult)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var brand in ViewBag.Brands as List<Brand>)
+            {
+                <tr>
+                    <td>@brand.Name</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning" onclick="editBrand(@brand.id, '@brand.Name')">@Translate.GetWordFromArray("edit",cult)</button>
+                        <form asp-controller="Admin" asp-action="DeleteBrand" method="post" style="display:inline;">
+                            <input type="hidden" name="id" value="@brand.id" />
+                            <button type="submit" class="btn btn-sm btn-danger">@Translate.GetWordFromArray("delete",cult)</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <h4>@Translate.GetWordFromArray("add",cult)/@Translate.GetWordFromArray("edit",cult) @Translate.GetWordFromArray("brand",cult)</h4>
+    <form asp-controller="Admin" asp-action="SaveBrand" method="post">
+        <input type="hidden" id="brandId" name="id" value="0" />
+        <div class="form-group">
+            <label for="brandName">@Translate.GetWordFromArray("name",cult)</label>
+            <input type="text" class="form-control" id="brandName" name="Name" required />
+        </div>
+        <button type="submit" class="btn btn-primary">@Translate.GetWordFromArray("save",cult)</button>
+    </form>
+
+</div>
+
+<div style="display: none" class="blockCategories">
+    <h3>@Translate.GetWordFromArray("categories",cult)</h3>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>@Translate.GetWordFromArray("names",cult)</th>
+                <th>@Translate.GetWordFromArray("actions",cult)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var category in ViewBag.Categories as List<Category>)
+            {
+                <tr>
+                    <td>@category.Name</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning" onclick="editCategory(@category.Id, @Html.Raw($"'{category.Name}'"))">@Translate.GetWordFromArray("edit",cult)</button>
+                        <form asp-controller="Admin" asp-action="DeleteCategory" method="post" style="display:inline;">
+                            <input type="hidden" name="id" value="@category.Id" />
+                            <button type="submit" class="btn btn-sm btn-danger">@Translate.GetWordFromArray("delete",cult)</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <h4>@Translate.GetWordFromArray("add",cult)/@Translate.GetWordFromArray("edit",cult) @Translate.GetWordFromArray("category",cult)</h4>
+    <form asp-controller="Admin" asp-action="SaveCategory" method="post">
+        <input type="hidden" id="categoryId" name="Id" value="0" />
+        <div class="form-group">
+            <label for="categoryName">@Translate.GetWordFromArray("name",cult)</label>
+            <input type="text" class="form-control" id="categoryName" name="Name" required />
+        </div>
+        <button type="submit" class="btn btn-primary">@Translate.GetWordFromArray("save",cult)</button>
+    </form>
+
+</div>
+
+<div class="blockProducts">
+    <h3>@Translate.GetWordFromArray("products",cult)</h3>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>@Translate.GetWordFromArray("image",cult)</th>
+                <th>@Translate.GetWordFromArray("name",cult)</th>
+                <th>@Translate.GetWordFromArray("description",cult)</th>
+                <th>@Translate.GetWordFromArray("price",cult)</th>
+                <th>@Translate.GetWordFromArray("category",cult)</th>
+                <th>@Translate.GetWordFromArray("brand",cult)</th>
+                <th>@Translate.GetWordFromArray("actions",cult)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var product in ViewBag.Products)
+            {
+                <tr>
+                    <td><img src="@product.ImageSrc" alt="@product.Name" style="width: 50px; height: 50px;" /></td>
+                    <td>@product.Name</td>
+                    <td>@product.Description</td>
+                    <td>@product.Price</td>
+                    <td>@product.Category.Name</td>
+                    <td>@product.Brand.Name</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning" onclick="editProduct(@product.Id, '@product.ImageSrc','@product.ImageSrc2','@product.ImageSrc3','@product.ImageSrc4','@product.ImageSrc5', '@product.Name', '@product.Description', @product.Price, @product.Discount , @product.Category.Id, @product.Brand.id)">@Translate.GetWordFromArray("edit",cult)</button>
+                        <form asp-controller="Admin" asp-action="DeleteProduct" method="post" style="display:inline;">
+                            <input type="hidden" name="id" value="@product.Id" />
+                            <button type="submit" class="btn btn-sm btn-danger">@Translate.GetWordFromArray("delete",cult)</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <h4>@Translate.GetWordFromArray("add",cult)/@Translate.GetWordFromArray("edit",cult) @Translate.GetWordFromArray("product",cult)</h4>
+    <form asp-controller="Admin" asp-action="SaveProduct" method="post">
+        <input type="hidden" id="productId" name="Id" value="0" />
+        <div class="form-group">
+            <label for="productImageSrc">@Translate.GetWordFromArray("image",cult) URL</label>
+            <input type="text" class="form-control" id="productImageSrc" name="ImageSrc" required />
+        </div>
+        <div class="form-group">
+            <label for="productImageSrc">@Translate.GetWordFromArray("image",cult)2 URL</label>
+            <input type="text" class="form-control" placeholder="Не обьязательно" id="productImageSrc2" name="ImageSrc2"/>
+        </div>
+        <div class="form-group">
+            <label for="productImageSrc">@Translate.GetWordFromArray("image",cult)3 URL</label>
+            <input type="text" class="form-control" placeholder="Не обьязательно" id="productImageSrc3" name="ImageSrc3"/>
+        </div>
+        <div class="form-group">
+            <label for="productImageSrc">@Translate.GetWordFromArray("image",cult)4 URL</label>
+            <input type="text" class="form-control" placeholder="Не обьязательно" id="productImageSrc4" name="ImageSrc4" />
+        </div>
+        <div class="form-group">
+            <label for="productImageSrc">@Translate.GetWordFromArray("image",cult)5 URL</label>
+            <input type="text" class="form-control" placeholder="Не обьязательно" id="productImageSrc5" name="ImageSrc5" />
+        </div>
+        <div class="form-group">
+            <label for="productName">@Translate.GetWordFromArray("name",cult)</label>
+            <input type="text" class="form-control" id="productName" name="Name" required />
+        </div>
+        <div class="form-group">
+            <label for="productDescription">@Translate.GetWordFromArray("description",cult)</label>
+            <input type="text" class="form-control" id="productDescription" name="Description" required />
+        </div>
+        <div class="form-group">
+            <label for="productPrice">@Translate.GetWordFromArray("price",cult)</label>
+            <input type="number" class="form-control" id="productPrice" name="Price" required />
+        </div>
+        <div class="form-group">
+            <label for="productDiscount">@Translate.GetWordFromArray("discount",cult)</label>
+            <input type="number" class="form-control" id="productDiscount" name="Discount" />
+        </div>
+        <div class="form-group">
+            <label for="productCategory">@Translate.GetWordFromArray("category",cult)</label>
+            <select class="form-control" id="productCategory" name="CategoryId" required>
+                @foreach (var category in ViewBag.Categories)
+                {
+                    <option value="@category.Id">@category.Name</option>
+                }
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="productBrand">@Translate.GetWordFromArray("brand",cult)</label>
+            <select class="form-control" id="productBrand" name="BrandId" required>
+                @foreach (var brand in ViewBag.Brands)
+                {
+                    <option value="@brand.id">@brand.Name</option>
+                }
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">@Translate.GetWordFromArray("save",cult)</button>
+    </form>
+
+</div>
+
+
+<script>
+
+    function loadProducts() {
+        document.querySelector('.blockProducts').style.display = 'block';
+        document.querySelector('.blockCategories').style.display = 'none';
+        document.querySelector('.blockBrands').style.display = 'none';
+        setActiveTab('tab-products');
+    }
+
+    function loadCategories() {
+        document.querySelector('.blockProducts').style.display = 'none';
+        document.querySelector('.blockCategories').style.display = 'block';
+        document.querySelector('.blockBrands').style.display = 'none';
+        setActiveTab('tab-categories');
+    }
+
+    function loadBrands() {
+        document.querySelector('.blockProducts').style.display = 'none';
+        document.querySelector('.blockCategories').style.display = 'none';
+        document.querySelector('.blockBrands').style.display = 'block';
+        setActiveTab('tab-brands');
+    }
+
+    function setActiveTab(tabId) {
+        document.querySelectorAll('.nav-link').forEach(function (link) {
+            link.classList.remove('active');
+        });
+        document.getElementById(tabId).classList.add('active');
+    }
+
+    function editBrand(id, name) {
+        document.getElementById('brandId').value = id;
+        document.getElementById('brandName').value = name;
+    }
+
+
+    function editCategory(id, name) {
+            document.getElementById('categoryId').value = id;
+            document.getElementById('categoryName').value = name;
+    }
+
+    function editProduct(id, imageSrc, imageSrc2, imageSrc3, imageSrc4, imageSrc5, name, description, price, discount, categoryId, brandId) {
+            document.getElementById('productId').value = id;
+            document.getElementById('productImageSrc').value = imageSrc;
+             document.getElementById('productImageSrc2').value = imageSrc2;
+            document.getElementById('productImageSrc3').value = imageSrc3;
+             document.getElementById('productImageSrc4').value = imageSrc4;
+              document.getElementById('productImageSrc5').value = imageSrc5;
+            document.getElementById('productName').value = name;
+            document.getElementById('productDescription').value = description;
+            document.getElementById('productPrice').value = price;
+           document.getElementById('productDiscount').value = discount;
+           document.getElementById('productPrice').value = price;
+            document.getElementById('productCategory').value = categoryId;
+            document.getElementById('productBrand').value = brandId;
+    }
+
+</script>
+
+

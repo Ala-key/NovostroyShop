@@ -1,0 +1,127 @@
+﻿@using Microsoft.AspNetCore.Localization;
+@using NovostroyShop.Models;
+@using NovostroyShop.Helpers;
+@using TranslatorHelper;
+@model IEnumerable<Product>;
+
+@{
+    var cult = Context.Features.Get<IRequestCultureFeature>().RequestCulture.UICulture.Name;
+}
+
+<div class="container" style="width: 1300px;">
+    <div class="row" style="width: 100%">
+        <div class="col-md-3">
+            <div class="filter">
+                <form asp-controller="Products" asp-action="Filter" method="post">
+                    <h4>@Translate.GetWordFromArray("categories", cult):</h4>
+                    @foreach (var category in ViewBag.Categories as List<Category>)
+                    {
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="selectedCategoryIds" id="category_@category.Id" value="@category.Id">
+                            <label class="form-check-label" for="category_@category.Id">@category.Name</label>
+                        </div>
+                    }
+                    <h4>@Translate.GetWordFromArray("brands", cult):</h4>
+                    @foreach (var brand in ViewBag.Brands as List<Brand>)
+                    {
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="selectedBrandIds" id="brand_@brand.id" value="@brand.id">
+                            <label class="form-check-label" for="brand_@brand.id">@brand.Name</label>
+                        </div>
+                    }
+                    <h4>@Translate.GetWordFromArray("price", cult):</h4>
+                    <div class="flex">
+                        <div class="form-group">
+                            <label>@Translate.GetWordFromArray("minprice", cult):</label>
+                            <input class="form-control" type="number" name="minPrice" />
+                        </div>
+                        <div class="form-group">
+                            <label>@Translate.GetWordFromArray("maxprice", cult):</label>
+                            <input class="form-control" type="number" name="maxPrice" />
+                        </div>
+                    </div>
+                    <div class="flex" style="margin-top: 14px;">
+                        <div style="display: flex;
+    flex-direction: column;
+    height: 80px;
+    justify-content: space-between;
+    align-items: flex-start;">
+                            <a style="width: 100%" href="@Url.Action("Products", "Products")" class="btn btn-secondary">@Translate.GetWordFromArray("returntoproductlist", cult)</a>
+                            <button style="width: 100%" type="submit" class="btn btn-warning">@Translate.GetWordFromArray("filter", cult)</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="sort" style="margin-left: 12px;">
+                <form asp-controller="Products" asp-action="SearchByKeyWord" method="post">
+                    <div class="input-group">
+                        <input class="form-control" type="text" name="word" placeholder="@Translate.GetWordFromArray("SearchByKeyWord", cult):">
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary" type="submit">@Translate.GetWordFromArray("search", cult)</button>
+                        </div>
+                    </div>
+                    @Html.AntiForgeryToken()
+                </form>
+            </div>
+            <div class="products row">
+                @foreach (var product in Model as List<Product>)
+                {
+                    <div class="col-md-3">
+                        <div class="product-card">
+                            <img src="@product.ImageSrc" alt="@product.Name" class="img-fluid">
+                            <div style="text-align: right" class="rating">
+                                @for (int i = 0; i < ProductsHelper.CountStars(product.Score, product.CountPersonScores); i++)
+                                {
+                                    <i style="color: white;font-size: 12px;" class="bi bi-star"></i>
+                                }
+                            </div>
+                            <h2 style="margin-top: 0px; cursor: pointer" onclick="postToDetails(@product.Id)">
+                                @product.Name
+                            </h2>
+                            <p style="color: white;font-size: 16px;font-weight: 500;">@Translate.GetWordFromArray("price", cult):: @product.Price$</p>
+                            <button onclick="addToCart(@product.Id)" type="submit" class="btn btn-outline-dark">@Translate.GetWordFromArray("addtocart", cult):</button>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function addToCart(productId) {
+        fetch('/Cart/AddToCart?productId=' + productId, {
+            method: 'POST'
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Произошла ошибка при добавлении товара в корзину.');
+                }
+                // Обработка успешного добавления товара в корзину
+                console.log('Товар успешно добавлен в корзину.');
+            })
+            .catch(error => {
+                // Обработка ошибки
+                console.error('Произошла ошибка при добавлении товара в корзину:', error);
+            });
+    }
+</script>
+
+<form id="detailsForm" method="post" style="display: none;">
+    <input type="hidden" name="productId" id="productId">
+</form>
+
+
+<script>
+
+    function postToDetails(productId) {
+        var form = document.getElementById('detailsForm');
+        document.getElementById('productId').value = productId;
+        form.action = '/Products/Details';
+        form.submit();
+    }
+
+</script>

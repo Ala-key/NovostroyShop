@@ -1,0 +1,53 @@
+﻿@model Order
+@using Microsoft.AspNetCore.Localization;
+@using TranslatorHelper;
+@{
+    var cartList = ViewBag.Cart as Cart;
+
+    var cult = Context.Features.Get<IRequestCultureFeature>().RequestCulture.UICulture.Name;
+}
+
+<h2>Корзина</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>@Translate.GetWordFromArray("product",cult)</th>
+            <th>@Translate.GetWordFromArray("count",cult)</th>
+            <th>@Translate.GetWordFromArray("price",cult)</th>
+            <th>@Translate.GetWordFromArray("action",cult)</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in cartList.Items)
+        {
+            <tr>
+                <td>@item.Product.Name</td>
+                <td>@item.Quantity</td>
+                <td>@item.Product.Price.ToString("c")</td>
+                <td>
+                    <a href="@Url.Action("RemoveFromCart", "Cart", new { productId = item.Product.Id })" class="btn btn-danger">@Translate.GetWordFromArray("delete",cult)</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h3>@Translate.GetWordFromArray("total",cult): @cartList.TotalValue().ToString("c")</h3>
+
+<form asp-action="Checkout" method="post">
+    <div class="form-group">
+        <label asp-for="CustomerName">@Translate.GetWordFromArray("fullname",cult)</label>
+        <input asp-for="CustomerName" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="CustomerEmail">@Translate.GetWordFromArray("email",cult)</label>
+        <input asp-for="CustomerEmail" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="CustomerAddress">@Translate.GetWordFromArray("address",cult)</label>
+        <input asp-for="CustomerAddress" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">@Translate.GetWordFromArray("order",cult)</button>
+</form>
+
